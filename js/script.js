@@ -15,17 +15,18 @@ const totalCountOther = document.getElementsByClassName('total-input')[2]
 const fullTotalCount = document.getElementsByClassName('total-input')[3]
 const totalCountRollBack = document.getElementsByClassName('total-input')[4]
 
+const countInput = document.querySelector(".main-controls__input input")
+const selectInput = document.querySelector("select[name=views-select]")
 
 let screens = document.querySelectorAll(".screen");
-
-
 
 const appData = {
     title: "",
     screens: [],
     screenPrice: 0,
+    screenCount: 0,
     adaptive: true,
-    rollback: 50,
+    rollback: 0,
     servicePricesPercent: 0,
     servicePricesNumber: 0,
     fullPrice: 0,
@@ -34,22 +35,57 @@ const appData = {
     servicesNumber: {},
     init: function () {
         appData.addTitle()
+        appData.roolRange();
+        appData.swithButton();
+
+        selectInput.addEventListener("input", appData.swithButton)
+        countInput.addEventListener("input", appData.swithButton)
 
         startBtn.addEventListener("click", appData.start)
         buttonPlus.addEventListener("click", appData.addScreenBlock)
+
+        inputRange.disabled = true;
+
+        inputRange.addEventListener("input", appData.roolRange)
     },
     addTitle: function () {
         document.title = title.textContent
     },
 
     start: function () {
+
         alert("Старт");
+
         appData.addScreens();
         appData.addServices();
-
         appData.addPrices();
+        appData.showResult();
+
         console.log(appData);
 
+        inputRange.disabled = false;
+    },
+
+    roolRange: function () {
+        inputRangeValue.textContent = inputRange.value + "%";
+        appData.rollback = parseInt(inputRange.value);
+
+        appData.servicePercentPrice = appData.fullPrice - (appData.fullPrice * (appData.rollback / 100));
+        totalCountRollBack.value = appData.servicePercentPrice.toFixed(0)
+
+    },
+
+    swithButton: function () {
+        if (selectInput.value !== "" && countInput.value !== "") {
+            startBtn.disabled = false;
+        } else startBtn.disabled = true;
+    },
+
+    showResult: function () {
+        total.value = appData.screenPrice
+        totalCountOther.value = appData.servicePricesPercent + appData.servicePricesNumber
+        fullTotalCount.value = appData.fullPrice
+        totalCount.value = appData.screenCount;
     },
 
     addScreens: function () {
@@ -59,11 +95,13 @@ const appData = {
             const select = screen.querySelector("select");
             const input = screen.querySelector("input");
             const selectName = select.options[select.selectedIndex].textContent;
+            const count = screen.querySelector("input");
 
             appData.screens.push({
                 id: index,
                 name: selectName,
-                price: +select.value * +input.value
+                price: +select.value * +input.value,
+                countScreens: +count.value
             })
 
         })
@@ -103,55 +141,22 @@ const appData = {
             appData.screenPrice += +screen.price
         }
 
+        for (let screen of appData.screens) {
+            appData.screenCount += +screen.countScreens
+        }
+
         for (let key in appData.servicesNumber) {
             appData.servicePricesNumber += appData.servicesNumber[key]
         }
 
-    },
-
-    getAllServicePrices: function () {
-
-        for (let key in appData.services) {
-            appData.AllServicePrices += appData.services[key];
+        for (let key in appData.servicesPercent) {
+            appData.servicePricesPercent += appData.screenPrice * (appData.servicesPercent[key] / 100)
         }
-    },
 
-    getFullPrice: function () {
-        appData.fullPrice = Number(this.AllServicePrices) + Number(this.screenPrice);
-    },
-
-    getTitle: function () {
-        return this.title.trim()[0].toUpperCase() + this.title.trim().slice(1).toLowerCase();
+        appData.fullPrice = +appData.screenPrice + appData.servicePricesPercent + appData.servicePricesNumber
 
     },
 
-    getServicePercentPrices: function () {
-        appData.servicePercentPrice = appData.fullPrice * (appData.rollback / 100);
-    },
-
-    getPercent: function (price) {
-
-        if (price > 30000) {
-            return "Цена со скидкой 30% ";
-        } else if (15000 <= price && price < 30000) {
-            return "Цена со скидкой 5% ";
-        } else if (price >= 0 && price <= 15000) {
-            return "Скидка не предусмотрена";
-        } else if (price < 0) {
-            return "Что-то пошло не так";
-        }
-    },
-
-
-
-    logger: function () {
-        console.log("Информация о проекте:");
-
-        console.log(appData.fullPrice);
-        console.log(appData.servicePercentPrice);
-        console.log(appData.screens);
-
-    }
 }
 
 appData.init();
