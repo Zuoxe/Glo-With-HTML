@@ -17,6 +17,9 @@ const totalCountRollBack = document.getElementsByClassName('total-input')[4]
 
 const countInput = document.querySelector(".main-controls__input input")
 const selectInput = document.querySelector("select[name=views-select]")
+const cmsOpenCheckbox = document.getElementById("cms-open");
+
+
 
 let screens = document.querySelectorAll(".screen");
 
@@ -39,9 +42,12 @@ const appData = {
         this.addTitle()
         this.roolRange();
         this.swithButton();
+        this.showHiddenVariants();
+        this.cmsOther()
 
         selectInput.addEventListener("input", this.swithButton)
         countInput.addEventListener("input", this.swithButton)
+        cmsOpenCheckbox.addEventListener("change", this.showHiddenVariants)
 
         startBtn.addEventListener("click", this.start)
         resetBtn.addEventListener("click", this.reset)
@@ -82,6 +88,26 @@ const appData = {
         })
     },
 
+    cmsOther: function () {
+        const cmsSelect = document.querySelector("#cms-select")
+        const cmsOtherIput = document.querySelector(".hidden-cms-variants .main-controls__input")
+        cmsSelect.addEventListener("change", (e) => {
+            const currentTarget = e.currentTarget
+            console.log(currentTarget);
+            console.log(currentTarget.value);
+            currentTarget.value === "other" ? cmsOtherIput.style = "display:block " : cmsOtherIput.style = "display:none "
+
+
+        })
+    },
+
+    showHiddenVariants: function () {
+        const checkOpenCMS = document.getElementById("cms-open")
+        const hiddenCMS = document.querySelector(".main-controls__item.hidden-cms-variants")
+        checkOpenCMS.checked ? hiddenCMS.style = "display:flex" : hiddenCMS.style = "display:none"
+
+    },
+
     enableInput: function () {
         const totalCountInput = document.querySelectorAll(".main-controls__input input")
         const totalSelectInput = document.querySelectorAll("select[name=views-select]")
@@ -101,7 +127,6 @@ const appData = {
 
                 item.disabled = false;
                 item.value = ""
-
             }
         })
     },
@@ -133,6 +158,8 @@ const appData = {
         appData.deleteForms();
         appData.resetPrices();
         appData.resetChecks();
+        appData.switchResetBtn();
+        appData.deleteObjectPrices()
         console.log(appData);
 
     },
@@ -202,6 +229,7 @@ const appData = {
         console.log(this.screens);
     },
     addServices: function () {
+
         otherItemsPercent.forEach((item) => {
             const check = item.querySelector("input[type=checkbox]")
             const label = item.querySelector("label")
@@ -256,6 +284,17 @@ const appData = {
 
         appData.fullPrice = +this.screenPrice + this.servicePricesPercent + appData.servicePricesNumber
 
+
+    },
+
+    deleteObjectPrices: function () {
+        for (let key in this.servicesNumber) {
+            delete this.servicesNumber[key]
+
+        }
+        for (let key in this.servicesPercent) {
+            delete this.servicesPercent[key]
+        }
     },
 
 }
