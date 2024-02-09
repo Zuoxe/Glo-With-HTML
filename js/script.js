@@ -19,6 +19,9 @@ const countInput = document.querySelector(".main-controls__input input")
 const selectInput = document.querySelector("select[name=views-select]")
 const cmsOpenCheckbox = document.getElementById("cms-open");
 
+const cmsInputValue = document.querySelector("#cms-other-input")
+
+
 
 
 let screens = document.querySelectorAll(".screen");
@@ -31,6 +34,7 @@ const appData = {
     screenCount: 0,
     adaptive: true,
     rollback: 0,
+    cmsValue: 0,
     servicePricesPercent: 0,
     servicePricesNumber: 0,
     fullPrice: 0,
@@ -44,6 +48,7 @@ const appData = {
         this.swithButton();
         this.showHiddenVariants();
         this.cmsOther()
+
 
         selectInput.addEventListener("input", this.swithButton)
         countInput.addEventListener("input", this.swithButton)
@@ -91,12 +96,20 @@ const appData = {
     cmsOther: function () {
         const cmsSelect = document.querySelector("#cms-select")
         const cmsOtherIput = document.querySelector(".hidden-cms-variants .main-controls__input")
+        // cmsInputValue = addEventListener("input")
+
         cmsSelect.addEventListener("change", (e) => {
             const currentTarget = e.currentTarget
+
             console.log(currentTarget);
             console.log(currentTarget.value);
+            console.log(cmsInputValue.value);
             currentTarget.value === "other" ? cmsOtherIput.style = "display:block " : cmsOtherIput.style = "display:none "
-
+            if (currentTarget.value !== "other") {
+                this.cmsValue = currentTarget.value
+            } else {
+                this.cmsValue = +cmsInputValue.value
+            }
 
         })
     },
@@ -143,7 +156,9 @@ const appData = {
         appData.servicePercentPrice = 0
         appData.servicePricesNumber = 0
         appData.servicePricesPercent = 0
+        appData.cmsValue = 0;
 
+        cmsInputValue.value = "0"
         total.value = "0"
         totalCount.value = "0"
         totalCountOther.value = "0"
@@ -166,6 +181,8 @@ const appData = {
 
     start: function () {
 
+
+        console.log(cmsInputValue.value);
         appData.addScreens();
         appData.addServices();
         appData.addPrices();
@@ -205,7 +222,7 @@ const appData = {
     showResult: function () {
         total.value = this.screenPrice
         totalCountOther.value = this.servicePricesPercent + this.servicePricesNumber
-        fullTotalCount.value = this.fullPrice
+        fullTotalCount.value = this.fullPrice + (this.fullPrice * (cmsInputValue.value / 100))
         totalCount.value = this.screenCount;
     },
 
@@ -282,9 +299,13 @@ const appData = {
             this.servicePricesPercent += this.screenPrice * (this.servicesPercent[key] / 100)
         }
 
-        appData.fullPrice = +this.screenPrice + this.servicePricesPercent + appData.servicePricesNumber
+        if (this.cmsValue > 0) {
+            appData.fullPrice = +this.screenPrice + this.servicePricesPercent + appData.servicePricesNumber
+            appData.fullPrice = this.fullPrice + (this.fullPrice * (this.cmsValue / 100))
 
-
+        } else {
+            appData.fullPrice = +this.screenPrice + this.servicePricesPercent + appData.servicePricesNumber
+        }
     },
 
     deleteObjectPrices: function () {
